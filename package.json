@@ -1,0 +1,28 @@
+{
+  "name": "campus-connect-backend",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000c\u0000a\u0000m\u0000p\u0000u\u0000s\u0000-\u0000c\u0000o\u0000n\u0000n\u0000e\u0000c\u0000t\u0000-\u0000B\u0000a\u0000c\u0000k\u0000e\u0000n\u0000d\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon -r dotenv/config --experimental-json-modules  src/index.js"
+  },
+  "keywords": [
+    "campus-connect",
+    "backend",
+    "server"
+  ],
+  "author": "Govind singh gurjar",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.4",
+    "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoosh": "^0.0.7"
+  }
+}
