@@ -46,6 +46,6 @@ router
   .route("/cover-image")
   .patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage);
 
-router.route("/c/:username").get(verifyJWT, getUserProfile);
+router.route("/:username").get(verifyJWT, getUserProfile);
 
 export default router;
