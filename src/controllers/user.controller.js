@@ -63,7 +63,7 @@ const registerUser = asyncHandler(async (req, res) => {
   if (!avatar) {
     throw new ApiError(400, "error in uploading Avatar file is required");
   }
-
+  console.log(avatar);
   const user = await User.create({
     fullName,
     avatar: avatar.url,
@@ -218,7 +218,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
-  console.log(req.user);
+  // console.log(req.user);
   const user = await User.findById(req.user?._id);
   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
 

@@ -11,13 +11,13 @@ const postSchema = new Schema(
       type: String,
       required: true,
     },
-    caption: {
+    description: {
       type: String,
       required: true,
     },
     duration: {
       type: Number,
-      required: true,
+      default:0,
     },
     views: {
       type: Number,
