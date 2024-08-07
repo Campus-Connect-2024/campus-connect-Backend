@@ -4,7 +4,7 @@ import {Posts} from "../models/posts.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
-import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import {uploadOnCloudinary,destroyCloudMedia} from "../utils/cloudinary.js"
 
 
 const getAllPosts = asyncHandler(async (req, res) => {
@@ -116,13 +116,17 @@ const publishAPost = asyncHandler(async (req, res) => {
 
     const media = await uploadOnCloudinary(mediaLocalPath);
     if(!media.url){
-        throw new ApiError(400, "Error while uploading on Media ")
+        throw new ApiError(400, "Error while uploading  Media  ")
     }
+    // console.log(media);
 
     const mediaPublished = await Posts.create({
         title,
         description,
-        MediaFile: media?.url||"",
+        MediaFile:{
+            url: media.secure_url,
+            public_id: media.public_id
+        },
         duration: media?.duration||0,
         owner: req.user._id
     })
@@ -158,11 +162,17 @@ const updatePost = asyncHandler(async (req, res) => {
         description: req.body?.description,
     };
 
-    // const post = await Posts.findById(postId);
-    
-    // if(req.file.path !== ""){
-    //     await destroyCloudImage(video.thumbnail.public_id)
-    // }
+    const post = await Posts.findById(postId);
+    if(!post){
+        throw new ApiError(404,"post not found !")
+    }
+    if(JSON.stringify(post.owner) !== JSON.stringify(req.user._id)){
+        throw new ApiError(403,"You are Not authorized to do this ")
+    }
+   
+    if(req.file.path !== ""){
+        await destroyCloudMedia(post.MediaFile.public_id);
+    }
 
     const MediaLocalPath = req.file?.path;
 
@@ -176,7 +186,11 @@ const updatePost = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Error while uloading media")
     }
 
-    UpdatedPostData.MediaFile=mediaUpload?.url;
+    UpdatedPostData.MediaFile ={
+        url : mediaUpload?.url,
+        public_id:mediaUpload?.public_id
+    }
+    
 
     const updatedPostDetails = await Posts.findByIdAndUpdate(postId, UpdatedPostData, {
         new: true,
@@ -187,34 +201,63 @@ const updatePost = asyncHandler(async (req, res) => {
 
 })
 
-// const deletePost = asyncHandler(async (req, res) => {
-//     const { postId } = req.params
-//     //TODO: delete video
-//     if (!isValidObjectId(postId)) {
-//         throw new ApiError(400, "Invalid postId ID")
-//     }
+const deletePost = asyncHandler(async (req, res) => {
 
-//     const post =  await Posts.findById(videoId);
+    const { postId } = req.params
+    //TODO: delete video
+    if (!isValidObjectId(postId)) {
+        throw new ApiError(400, "Invalid postId ID")
+    }
 
-//     await destroyCloudImage(video.thumbnail.public_id)
+    const post =  await Posts.findById(postId);
+    if(!post){
+        throw new ApiError(404,"post not found !")
+    }
+    
+    if(JSON.stringify(post.owner) !== JSON.stringify(req.user._id)){
+        throw new ApiError(403,"You are Not authorized to do this ")
+    }
+   
+    
+    await destroyCloudMedia(post.MediaFile.public_id)
 
-//     await destroyCloudVideo(video.videoFile.public_id)
+    await Posts.findByIdAndDelete(postId)
 
-//     await Video.findByIdAndDelete(videoId)
+    return res.status(200)
+        .json(new ApiResponse(200, {}, "Post Deleted Successfully"))
+})
 
-//     return res.status(200)
-//         .json(new ApiResponse(200, {}, "Video Deleted Successfully"))
-// })
+const togglePublishStatus = asyncHandler(async (req, res) => {
 
-// const togglePublishStatus = asyncHandler(async (req, res) => {
-//     const { videoId } = req.params
-// })
+    const { postId } = req.params
+    if (!isValidObjectId(postId)) {
+        throw new ApiError(400, "Invalid video ID")
+    }
+
+    const post = await Posts.findById(postId);
+
+    if(!post){
+        throw new ApiError(404,"post not found !")
+    }
+    
+    if(JSON.stringify(post.owner) !== JSON.stringify(req.user._id)){
+        throw new ApiError(403,"You are Not authorized to do this ")
+    }
+    // Toggle the isPublish field
+    post.isPublished = !post.isPublished;
+
+    // Save the updated video
+    await post.save();
+
+    return res.status(200)
+        .json(new ApiResponse(200, post, "isPublished toggle Successfully"))
+})
 
 export {
     getAllPosts,
     publishAPost,
     getPostById,
     updatePost,
-    // deletePost,
-    // togglePublishStatus
+    deletePost,
+    togglePublishStatus
 }

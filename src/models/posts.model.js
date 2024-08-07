@@ -4,8 +4,14 @@ import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 const postSchema = new Schema(
   {
     MediaFile: {
-      type: String, //cloudinary url
-      required: true,
+      public_id: {
+        type: String,
+        required: true,
+      },
+      url: {
+        type: String,
+        required: true,
+      }
     },
     title: {
       type: String,

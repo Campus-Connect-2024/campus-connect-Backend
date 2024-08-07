@@ -3,7 +3,9 @@ import {
     getAllPosts,
     publishAPost,
     getPostById,
-    updatePost
+    updatePost,
+    deletePost,
+    togglePublishStatus
 } from "../controllers/post.controller.js"
 import {verifyJWT} from "../middlewares/auth.middleware.js"
 import {upload} from "../middlewares/multer.middleware.js"
@@ -28,9 +30,9 @@ router
 router
     .route("/:postId")
     .get(getPostById)
-    // .delete(deleteVideo)
+    .delete(deletePost)
     .patch(upload.single("MediaFile"), updatePost);
 
-// router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
+router.route("/toggle/publish/:postId").patch(togglePublishStatus);
 
 export default router
