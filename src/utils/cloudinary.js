@@ -10,13 +10,12 @@ cloudinary.config({
 const destroyCloudMedia = async (localFilePath) => {
   try {
     const result = await cloudinary.uploader.destroy(localFilePath);
-    console.log("SUccess in deleting")
+    console.log("SUccess in deleting");
     return true;
   } catch (error) {
-    console.error('Error deleting media :', error);
+    console.error("Error deleting media :", error);
   }
 };
-
 
 const uploadOnCloudinary = async (localFilePath) => {
   try {
@@ -35,4 +34,4 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 };
 
-export { uploadOnCloudinary,destroyCloudMedia };
+export { uploadOnCloudinary, destroyCloudMedia };

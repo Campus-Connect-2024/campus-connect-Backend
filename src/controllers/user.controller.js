@@ -56,7 +56,7 @@ const registerUser = asyncHandler(async (req, res) => {
   let avatar;
   if (avatarLocalPath) {
     // throw new ApiError(400, "Avatar file is required");
-     avatar = await uploadOnCloudinary(avatarLocalPath);
+    avatar = await uploadOnCloudinary(avatarLocalPath);
   }
 
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
@@ -67,7 +67,9 @@ const registerUser = asyncHandler(async (req, res) => {
   console.log(avatar);
   const user = await User.create({
     fullName,
-    avatar: avatar?.url||"https://res.cloudinary.com/campus-connect-web/image/upload/v1723035802/defauld_profile_pic_xlsoua.png",
+    avatar:
+      avatar?.url ||
+      "https://res.cloudinary.com/campus-connect-web/image/upload/v1723035802/defauld_profile_pic_xlsoua.png",
     coverImage: coverImage?.url || "",
     email,
     password,

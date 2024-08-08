@@ -11,7 +11,7 @@ const postSchema = new Schema(
       url: {
         type: String,
         required: true,
-      }
+      },
     },
     title: {
       type: String,
@@ -23,7 +23,7 @@ const postSchema = new Schema(
     },
     duration: {
       type: Number,
-      default:0,
+      default: 0,
     },
     views: {
       type: Number,
