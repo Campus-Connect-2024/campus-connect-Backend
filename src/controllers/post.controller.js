@@ -112,9 +112,12 @@ const publishAPost = asyncHandler(async (req, res) => {
 
   const media = mediaLocalPath ? await uploadOnCloudinary(mediaLocalPath) : "";
   // if (!media.url) {
-  //   throw new ApiError(400, "Error while uploading  Media  ");
+  //   
   // }
   // console.log(media);
+  if(mediaLocalPath&&(!media)){
+    throw new ApiError(400, "Error while uploading  Media  ");
+  }
 
   const mediaPublished = await Posts.create({
     title,
@@ -126,7 +129,7 @@ const publishAPost = asyncHandler(async (req, res) => {
     duration: media?.duration || 0,
     owner: req.user._id,
   });
-
+  console.log("Posted ! ")
   return res
     .status(201)
     .json(
@@ -152,7 +155,6 @@ const getPostById = asyncHandler(async (req, res) => {
 
 const updatePost = asyncHandler(async (req, res) => {
   const { postId } = req.params;
-  //TODO: update video details like title, description, thumbnail
   if (!isValidObjectId(postId)) {
     throw new ApiError(400, "Invalid post ID");
   }
@@ -170,25 +172,28 @@ const updatePost = asyncHandler(async (req, res) => {
     throw new ApiError(403, "You are Not authorized to do this ");
   }
 
-  if (req.file.path !== "") {
-    await destroyCloudMedia(post.MediaFile.public_id);
+  if (req.file?.path !== "") {
+    post.MediaFile.public_id ? await destroyCloudMedia(post.MediaFile.public_id):"";
   }
 
-  const MediaLocalPath = req.file?.path;
-
-  if (!MediaLocalPath) {
-    throw new ApiError(400, "Media file is missing");
+  const MediaLocalPath = req.file?.path||"";
+  // console.log(MediaLocalPath+" this is ")
+  if ((!MediaLocalPath)&&(!UpdatedPostData.description)) {
+    throw new ApiError(400, "Atleast One feild is required ! ");
   }
+  // if (!MediaLocalPath) {
+  //   throw new ApiError(400, "Media file is missing");
+  // }
 
-  const mediaUpload = await uploadOnCloudinary(MediaLocalPath);
+  const mediaUpload =MediaLocalPath ? await uploadOnCloudinary(MediaLocalPath):"";
 
-  if (!mediaUpload.url) {
+  if (MediaLocalPath&&(!mediaUpload)) {
     throw new ApiError(400, "Error while uloading media");
   }
 
   UpdatedPostData.MediaFile = {
-    url: mediaUpload?.url,
-    public_id: mediaUpload?.public_id,
+    url: mediaUpload?.url||"",
+    public_id: mediaUpload?.public_id||"",
   };
 
   const updatedPostDetails = await Posts.findByIdAndUpdate(
@@ -198,7 +203,7 @@ const updatePost = asyncHandler(async (req, res) => {
       new: true,
     }
   );
-
+  console.log("Updated Post ! ")
   return res
     .status(200)
     .json(
@@ -226,10 +231,10 @@ const deletePost = asyncHandler(async (req, res) => {
     throw new ApiError(403, "You are Not authorized to do this ");
   }
 
-  await destroyCloudMedia(post.MediaFile.public_id);
+  post.MediaFile.public_id!=""? await destroyCloudMedia(post.MediaFile.public_id) : "";
 
   await Posts.findByIdAndDelete(postId);
-
+  console.log("Deleted Post ! ")
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Post Deleted Successfully"));
