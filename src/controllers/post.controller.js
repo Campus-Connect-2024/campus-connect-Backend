@@ -100,31 +100,28 @@ const getAllPosts = asyncHandler(async (req, res) => {
 });
 
 const publishAPost = asyncHandler(async (req, res) => {
-  const { title, description } = req.body;
+  const { title="", description="" } = req.body;
   // TODO: get video, upload to cloudinary, create video
-  if (!(title && description)) {
-    throw new ApiError(400, "Please provide title and description");
-  }
-
+  
   // console.log(req.files)
-  const mediaLocalPath = req.files?.MediaFile[0]?.path;
-
-  if (!mediaLocalPath) {
-    throw new ApiError(400, "Please provide MediaFIle ");
+  const mediaLocalPath = req.files?.MediaFile?.[0]?.path||"";
+  if ((!mediaLocalPath)&&(!description)) {
+    throw new ApiError(400, "Atleast One feild is required ! ");
   }
 
-  const media = await uploadOnCloudinary(mediaLocalPath);
-  if (!media.url) {
-    throw new ApiError(400, "Error while uploading  Media  ");
-  }
+
+  const media = mediaLocalPath ? await uploadOnCloudinary(mediaLocalPath) : "";
+  // if (!media.url) {
+  //   throw new ApiError(400, "Error while uploading  Media  ");
+  // }
   // console.log(media);
 
   const mediaPublished = await Posts.create({
     title,
     description,
     MediaFile: {
-      url: media.secure_url,
-      public_id: media.public_id,
+      url: media?.secure_url||"",
+      public_id: media?.public_id||"",
     },
     duration: media?.duration || 0,
     owner: req.user._id,
@@ -161,8 +158,8 @@ const updatePost = asyncHandler(async (req, res) => {
   }
 
   const UpdatedPostData = {
-    title: req.body?.title,
-    description: req.body?.description,
+    title: req.body?.title||"",
+    description: req.body?.description||"",
   };
 
   const post = await Posts.findById(postId);
