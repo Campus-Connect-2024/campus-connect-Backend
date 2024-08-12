@@ -135,8 +135,58 @@ const getPostById = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid Post ID");
   }
 
-  const post = await Posts.findById(postId);
+  // const post = await Posts.findById(postId);
+  const post = await Posts.aggregate([
+     {
+      $match: {
+        _id: new mongoose.Types.ObjectId(postId)
+      }
+     },{
+      $lookup:{
+        from: "likes",
+        localField : "_id",
+        foreignField: "post",
+        as: "likes",
+      },
+     },{
+      $lookup:{
+        from : "comments",
+        localField : "_id",
+        foreignField : "post",
+        as : "comments",
+      }
+     },{
+      $addFields : {
+        likes : "$likes",
+        comments : "$comments",
+        likesCount :{
+          $size : "$likes"
+        },
+        commentsCount: {
+          $size :"$comments"
+        } ,
+      }
+     },{
+      $project: {
+        MediaFile : 1,
+        title : 1,
+        description: 1,
+        duration : 1,
+        views : 1,
+        isPublished: 1,
+        owner : 1,
+        createdAt : 1,
+        updatedAt : 1,
+        likesCount : 1 ,
+        commentsCount : 1 ,
+        likes : 1,
+        comments : 1,
+      }
+     }
+  ]);
 
+
+  console.log(post)
   if (!post) {
     throw new ApiError(404, " Post not found");
   }
