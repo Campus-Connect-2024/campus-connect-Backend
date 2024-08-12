@@ -186,7 +186,7 @@ const getPostById = asyncHandler(async (req, res) => {
   ]);
 
 
-  console.log(post)
+  // console.log(post)
   if (!post) {
     throw new ApiError(404, " Post not found");
   }
