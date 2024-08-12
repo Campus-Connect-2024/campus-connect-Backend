@@ -42,16 +42,35 @@ const getAllPosts = asyncHandler(async (req, res) => {
             },
           ],
         },
-      },
-
-      {
-        $addFields: {
+      },{
+        $lookup:{
+          from: "likes",
+          localField : "_id",
+          foreignField: "post",
+          as: "likes",
+        },
+       },{
+        $lookup:{
+          from : "comments",
+          localField : "_id",
+          foreignField : "post",
+          as : "comments",
+        }
+       },{
+        $addFields : {
+          likes : "$likes",
+          comments : "$comments",
+          likesCount :{
+            $size : "$likes"
+          },
+          commentsCount: {
+            $size :"$comments"
+          } ,
           owner: {
             $first: "$owner",
           },
-        },
-      },
-
+        }
+       },
       {
         $sort: {
           [sortBy || "createdAt"]: sortType || -1,
