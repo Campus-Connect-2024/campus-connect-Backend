@@ -8,7 +8,7 @@ import { uploadOnCloudinary, destroyCloudMedia } from "../utils/cloudinary.js";
 const getAllPosts = asyncHandler(async (req, res) => {
   const {
     page = 1,
-    limit = 10,
+    limit = 100,
     query = "",
     sortBy = "createdAt",
     sortType = -1,
@@ -330,6 +330,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, post, "isPublished toggle Successfully"));
 });
+
 
 export {
   getAllPosts,
