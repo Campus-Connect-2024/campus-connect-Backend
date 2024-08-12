@@ -100,22 +100,21 @@ const getAllPosts = asyncHandler(async (req, res) => {
 });
 
 const publishAPost = asyncHandler(async (req, res) => {
-  const { title="", description="" } = req.body;
+  const { title = "", description = "" } = req.body;
   // TODO: get video, upload to cloudinary, create video
-  
+
   // console.log(req.files)
-  const mediaLocalPath = req.files?.MediaFile?.[0]?.path||"";
-  if ((!mediaLocalPath)&&(!description)) {
+  const mediaLocalPath = req.files?.MediaFile?.[0]?.path || "";
+  if (!mediaLocalPath && !description) {
     throw new ApiError(400, "Atleast One feild is required ! ");
   }
 
-
   const media = mediaLocalPath ? await uploadOnCloudinary(mediaLocalPath) : "";
   // if (!media.url) {
-  //   
+  //
   // }
   // console.log(media);
-  if(mediaLocalPath&&(!media)){
+  if (mediaLocalPath && !media) {
     throw new ApiError(400, "Error while uploading  Media  ");
   }
 
@@ -123,13 +122,13 @@ const publishAPost = asyncHandler(async (req, res) => {
     title,
     description,
     MediaFile: {
-      url: media?.secure_url||"",
-      public_id: media?.public_id||"",
+      url: media?.secure_url || "",
+      public_id: media?.public_id || "",
     },
     duration: media?.duration || 0,
     owner: req.user._id,
   });
-  console.log("Posted ! ")
+  console.log("Posted ! ");
   return res
     .status(201)
     .json(
@@ -160,8 +159,8 @@ const updatePost = asyncHandler(async (req, res) => {
   }
 
   const UpdatedPostData = {
-    title: req.body?.title||"",
-    description: req.body?.description||"",
+    title: req.body?.title || "",
+    description: req.body?.description || "",
   };
 
   const post = await Posts.findById(postId);
@@ -173,27 +172,31 @@ const updatePost = asyncHandler(async (req, res) => {
   }
 
   if (req.file?.path !== "") {
-    post.MediaFile.public_id ? await destroyCloudMedia(post.MediaFile.public_id):"";
+    post.MediaFile.public_id
+      ? await destroyCloudMedia(post.MediaFile.public_id)
+      : "";
   }
 
-  const MediaLocalPath = req.file?.path||"";
+  const MediaLocalPath = req.file?.path || "";
   // console.log(MediaLocalPath+" this is ")
-  if ((!MediaLocalPath)&&(!UpdatedPostData.description)) {
+  if (!MediaLocalPath && !UpdatedPostData.description) {
     throw new ApiError(400, "Atleast One feild is required ! ");
   }
   // if (!MediaLocalPath) {
   //   throw new ApiError(400, "Media file is missing");
   // }
 
-  const mediaUpload =MediaLocalPath ? await uploadOnCloudinary(MediaLocalPath):"";
+  const mediaUpload = MediaLocalPath
+    ? await uploadOnCloudinary(MediaLocalPath)
+    : "";
 
-  if (MediaLocalPath&&(!mediaUpload)) {
+  if (MediaLocalPath && !mediaUpload) {
     throw new ApiError(400, "Error while uloading media");
   }
 
   UpdatedPostData.MediaFile = {
-    url: mediaUpload?.url||"",
-    public_id: mediaUpload?.public_id||"",
+    url: mediaUpload?.url || "",
+    public_id: mediaUpload?.public_id || "",
   };
 
   const updatedPostDetails = await Posts.findByIdAndUpdate(
@@ -203,7 +206,7 @@ const updatePost = asyncHandler(async (req, res) => {
       new: true,
     }
   );
-  console.log("Updated Post ! ")
+  console.log("Updated Post ! ");
   return res
     .status(200)
     .json(
@@ -231,10 +234,12 @@ const deletePost = asyncHandler(async (req, res) => {
     throw new ApiError(403, "You are Not authorized to do this ");
   }
 
-  post.MediaFile.public_id!=""? await destroyCloudMedia(post.MediaFile.public_id) : "";
+  post.MediaFile.public_id != ""
+    ? await destroyCloudMedia(post.MediaFile.public_id)
+    : "";
 
   await Posts.findByIdAndDelete(postId);
-  console.log("Deleted Post ! ")
+  console.log("Deleted Post ! ");
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Post Deleted Successfully"));
