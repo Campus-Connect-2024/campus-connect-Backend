@@ -6,7 +6,6 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const togglePostLike = asyncHandler(async (req, res) => {
   const { postId } = req.params;
-  //TODO: toggle like on video
   if (!isValidObjectId(postId)) {
     throw new ApiError(400, "Invalid postId ID");
   }
@@ -29,7 +28,6 @@ const togglePostLike = asyncHandler(async (req, res) => {
 
 const toggleCommentLike = asyncHandler(async (req, res) => {
   const { commentId } = req.params;
-  //TODO: toggle like on comment
   if (!isValidObjectId(commentId)) {
     throw new ApiError(400, "Invalid comment ID");
   }
@@ -57,13 +55,11 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
 });
 
 const getLikedPosts = asyncHandler(async (req, res) => {
-  //TODO: get all liked videos
   const likes = await Like.find({
     likedBy: req.user?._id,
     post: { $ne: null },
   }).populate("post");
 
-  // except null extract all data from likes array
   const likedposts = likes.filter((like) => like.post).map((like) => like.post);
 
   if (likedposts.length === 0) {
@@ -72,7 +68,6 @@ const getLikedPosts = asyncHandler(async (req, res) => {
       .json(new ApiResponse(200, {}, "You haven't liked any Posts yet"));
   }
 
-  // const videos = likes.map(like => like.video)
   return res
     .status(200)
     .json(new ApiResponse(200, likedposts, "Liked Posts fetched successfully"));

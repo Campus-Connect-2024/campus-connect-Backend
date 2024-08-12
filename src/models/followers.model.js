@@ -3,11 +3,11 @@ import mongoose, { Schema } from "mongoose";
 const followrsSchema = new Schema(
   {
     follower: {
-      type: Schema.Types.ObjectId, // one who is subscribing
+      type: Schema.Types.ObjectId,
       ref: "User",
     },
     owner: {
-      type: Schema.Types.ObjectId, // one to whom 'subscriber' is subscribing
+      type: Schema.Types.ObjectId,
       ref: "User",
     },
   },

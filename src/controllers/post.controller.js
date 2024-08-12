@@ -1,6 +1,5 @@
 import mongoose, { isValidObjectId } from "mongoose";
 import { Posts } from "../models/posts.model.js";
-// import {User} from "../models/user.model.js"
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -15,7 +14,6 @@ const getAllPosts = asyncHandler(async (req, res) => {
     sortType = -1,
     userId = "",
   } = req.query;
-  //TODO: get all post based on query, sort, pagination
   var postAggregate;
   try {
     postAggregate = Posts.aggregate([
@@ -61,7 +59,6 @@ const getAllPosts = asyncHandler(async (req, res) => {
       },
     ]);
   } catch (error) {
-    // console.error("Error in aggregation:", error);
     throw new ApiError(
       500,
       error.message || "Internal server error in Post aggregation"
@@ -81,7 +78,6 @@ const getAllPosts = asyncHandler(async (req, res) => {
 
   Posts.aggregatePaginate(postAggregate, options)
     .then((result) => {
-      // console.log("first")
       if (result?.Posts?.length === 0) {
         return res.status(200).json(new ApiResponse(200, [], "No post found"));
       }
@@ -91,7 +87,6 @@ const getAllPosts = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, result, "posts fetched successfully"));
     })
     .catch((error) => {
-      // console.log("error ::", error)
       throw new ApiError(
         500,
         error?.message || "Internal server error in post aggregate Paginate"
@@ -101,9 +96,7 @@ const getAllPosts = asyncHandler(async (req, res) => {
 
 const publishAPost = asyncHandler(async (req, res) => {
   const { title = "", description = "" } = req.body;
-  // TODO: get video, upload to cloudinary, create video
 
-  // console.log(req.files)
   const mediaLocalPath = req.files?.MediaFile?.[0]?.path || "";
   if (!mediaLocalPath && !description) {
     throw new ApiError(400, "Atleast One feild is required ! ");
@@ -220,7 +213,6 @@ const updatePost = asyncHandler(async (req, res) => {
 
 const deletePost = asyncHandler(async (req, res) => {
   const { postId } = req.params;
-  //TODO: delete video
   if (!isValidObjectId(postId)) {
     throw new ApiError(400, "Invalid postId ID");
   }
@@ -263,7 +255,6 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
   // Toggle the isPublish field
   post.isPublished = !post.isPublished;
 
-  // Save the updated video
   await post.save();
 
   return res

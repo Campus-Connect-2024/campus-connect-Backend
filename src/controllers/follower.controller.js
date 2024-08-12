@@ -5,7 +5,6 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 const toggleFollowing = asyncHandler(async (req, res) => {
   const { userId } = req.params;
-  // TODO: toggle subscription
 
   if (!isValidObjectId(userId)) {
     throw new ApiError(400, "Invalid user ID");
@@ -39,7 +38,6 @@ const toggleFollowing = asyncHandler(async (req, res) => {
     );
 });
 
-// controller to return subscriber list of a channel
 const getUserFollowers = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
@@ -59,7 +57,6 @@ const getUserFollowers = asyncHandler(async (req, res) => {
     );
 });
 
-// controller to return channel list to which user has subscribed
 const getFollowedUsers = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
