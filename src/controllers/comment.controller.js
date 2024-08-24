@@ -13,7 +13,7 @@ const getPostComments = asyncHandler(async (req, res) => {
   }
 
   const skip = (page - 1) * limit;
-  const comments = await Comment.find({ post: postId }).skip(skip).limit(limit);
+  const comments = await Comment.find({ post: postId }).skip(skip).limit(limit).populate("owner", "_id username fullName avatar");
 
   return res
     .status(200)
