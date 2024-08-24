@@ -17,6 +17,10 @@ const postSchema = new Schema(
       type: String,
       // required: true,
     },
+    resourceType:{
+        type:String,
+        
+    },
     description: {
       type: String,
       // required: true,

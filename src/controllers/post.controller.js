@@ -125,7 +125,7 @@ const publishAPost = asyncHandler(async (req, res) => {
   // if (!media.url) {
   //
   // }
-  // console.log(media);
+  // console.log(media.duration);
   if (mediaLocalPath && !media) {
     throw new ApiError(400, "Error while uploading  Media  ");
   }
@@ -137,6 +137,7 @@ const publishAPost = asyncHandler(async (req, res) => {
       url: media?.secure_url || "",
       public_id: media?.public_id || "",
     },
+    resourceType:media?.resource_type,
     duration: media?.duration || 0,
     owner: req.user._id,
   });
