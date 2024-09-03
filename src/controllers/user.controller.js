@@ -315,16 +315,16 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 });
 
 const getUserProfile = asyncHandler(async (req, res) => {
-  const { username } = req.params;
+  const { userId } = req.params;
 
-  if (!username?.trim()) {
-    throw new ApiError(400, "username is missing");
+  if (!isValidObjectId(userId)) {
+    throw new ApiError(400, "Invalid User ID");
   }
 
   const userProfile = await User.aggregate([
     {
       $match: {
-        username: username?.toLowerCase(),
+        _id:new mongoose.Types.ObjectId(userId),
       },
     },
     {
@@ -375,13 +375,13 @@ const getUserProfile = asyncHandler(async (req, res) => {
   ]);
 
   if (!userProfile?.length) {
-    throw new ApiError(404, "channel does not exists");
+    throw new ApiError(404, "User does not exists");
   }
 
   return res
     .status(200)
     .json(
-      new ApiResponse(200, userProfile[0], "User channel fetched successfully")
+      new ApiResponse(200, userProfile[0], "User  fetched successfully")
     );
 });
 
