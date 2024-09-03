@@ -385,72 +385,6 @@ const getUserProfile = asyncHandler(async (req, res) => {
     );
 });
 
-const getPostsByUserId = asyncHandler(async (req, res) => {
-  const { userId } = req.params;
-  if (!isValidObjectId(userId)) {
-    throw new ApiError(400, "Invalid User ID");
-  }
-
-  const posts = await Posts.aggregate([
-    {
-      $match: {
-        owner: new mongoose.Types.ObjectId(userId),
-      },
-    },
-    {
-      $lookup: {
-        from: "likes",
-        localField: "_id",
-        foreignField: "post",
-        as: "likes",
-      },
-    },
-    {
-      $lookup: {
-        from: "comments",
-        localField: "_id",
-        foreignField: "post",
-        as: "comments",
-      },
-    },
-    {
-      $addFields: {
-        likes: "$likes",
-        comments: "$comments",
-        likesCount: {
-          $size: "$likes",
-        },
-        commentsCount: {
-          $size: "$comments",
-        },
-      },
-    },
-    {
-      $project: {
-        MediaFile: 1,
-        title: 1,
-        description: 1,
-        duration: 1,
-        views: 1,
-        isPublished: 1,
-        owner: 1,
-        createdAt: 1,
-        updatedAt: 1,
-        likesCount: 1,
-        commentsCount: 1,
-        likes: 1,
-        comments: 1,
-      },
-    },
-  ]);
-
-  if (!posts || posts.length === 0) {
-    throw new ApiError(404, "No posts found for this user");
-  }
-  return res
-    .status(200)
-    .json(new ApiResponse(200, posts, "Posts fetched successfully"));
-});
 
 export {
   registerUser,
@@ -463,5 +397,5 @@ export {
   updateUserAvatar,
   updateUserCoverImage,
   getUserProfile,
-  getPostsByUserId,
+  
 };

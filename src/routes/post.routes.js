@@ -6,6 +6,7 @@ import {
   updatePost,
   deletePost,
   togglePublishStatus,
+  getPostsByUserId
 } from "../controllers/post.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -32,6 +33,8 @@ router
   .delete(deletePost)
   .patch(upload.single("MediaFile"), updatePost);
 
+
 router.route("/toggle/publish/:postId").patch(togglePublishStatus);
+router.route("/user/:userId").get(verifyJWT, getPostsByUserId);
 
 export default router;

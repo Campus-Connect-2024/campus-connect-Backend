@@ -10,7 +10,6 @@ import {
   updateUserCoverImage,
   getUserProfile,
   updateAccountDetails,
-  getPostsByUserId,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -46,6 +45,5 @@ router
   .route("/cover-image")
   .patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage);
 
-router.route("/:userId").get(verifyJWT, getPostsByUserId);
 
 export default router;
