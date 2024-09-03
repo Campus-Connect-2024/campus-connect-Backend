@@ -154,7 +154,10 @@ const getPostById = asyncHandler(async (req, res) => {
   if (!isValidObjectId(postId)) {
     throw new ApiError(400, "Invalid Post ID");
   }
-
+  const postCheck=await Posts.findById(postId);
+  if(!postCheck){
+    throw new ApiError(404,"Post Not Found ! ")
+  }
   // const post = await Posts.findById(postId);
   const post = await Posts.aggregate([
      {
@@ -195,6 +198,7 @@ const getPostById = asyncHandler(async (req, res) => {
         views : 1,
         isPublished: 1,
         owner : 1,
+        resourceType:1,
         createdAt : 1,
         updatedAt : 1,
         likesCount : 1 ,
