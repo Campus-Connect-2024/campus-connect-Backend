@@ -4,6 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary, destroyCloudMedia } from "../utils/cloudinary.js";
+import { redisClient} from "../redis/redisClient.js";
 
 const getAllPosts = asyncHandler(async (req, res) => {
   const {
@@ -14,8 +15,20 @@ const getAllPosts = asyncHandler(async (req, res) => {
     sortType = -1,
     userId = "",
   } = req.query;
+  const cacheKey = `posts:${page}:${limit}:${query}:${sortBy}:${sortType}`;
   var postAggregate;
   try {
+    let cachedData;
+    try {
+      cachedData=await redisClient.get(cacheKey);
+    } catch (error) {
+      console.error("redis error ",error);
+      
+    }
+    if (cachedData) {
+      // If data is found in cache, return it
+      return res.status(200).json(new ApiResponse(200, JSON.parse(cachedData), "posts fetched from cache"));
+    }
     postAggregate = Posts.aggregate([
       {
         $match: {
@@ -100,6 +113,9 @@ const getAllPosts = asyncHandler(async (req, res) => {
       if (result?.Posts?.length === 0) {
         return res.status(200).json(new ApiResponse(200, [], "No post found"));
       }
+
+      redisClient.set(cacheKey, JSON.stringify(result),{EX:600})
+
 
       return res
         .status(200)
