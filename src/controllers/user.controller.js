@@ -7,7 +7,6 @@ import jwt from "jsonwebtoken";
 
 //my changes
 import mongoose, { isValidObjectId } from "mongoose";
-import { Posts } from "../models/posts.model.js";
 
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
@@ -238,20 +237,46 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { fullName, email } = req.body;
+  const { fullName, email, skills, education, about, socialLinks } = req.body;
 
-  if (!fullName || !email) {
-    throw new ApiError(400, "All fields are required");
+  // Dynamically build the update object, only adding fields that are provided
+  const updateData = {};
+
+  if (fullName) updateData.fullName = fullName;
+  if (email) updateData.email = email;
+  if (skills) {
+    if (Array.isArray(skills)) {
+        updateData.skills = skills; // If already an array, use it
+    } else if (typeof skills === 'string') {
+        try {
+            updateData.skills = JSON.parse(skills); // Try parsing the string to an array
+        } catch (error) {
+            updateData.skills = []; // If parsing fails, set it to an empty array
+        }
+    } else {
+        updateData.skills = []; // If it's neither, set it to an empty array
+    }
   }
+  if (education) {
+    if (Array.isArray(education)) {
+        updateData.education = education; // If already an array, use it
+    } else if (typeof education === 'string') {
+        try {
+            updateData.education = JSON.parse(education); // Try parsing the string to an array
+        } catch (error) {
+            updateData.education = []; // If parsing fails, set it to an empty array
+        }
+    } else {
+        updateData.education = []; // If it's neither, set it to an empty array
+    }
+}
+  if (about) updateData.about = about;
+  if (socialLinks) updateData.socialLinks = socialLinks;
 
+  // Perform the update operation with only the fields that need to be updated
   const user = await User.findByIdAndUpdate(
     req.user?._id,
-    {
-      $set: {
-        fullName,
-        email: email,
-      },
-    },
+    { $set: updateData },  // Set only fields that exist in the request
     { new: true }
   ).select("-password -refreshToken");
 
@@ -370,6 +395,10 @@ const getUserProfile = asyncHandler(async (req, res) => {
         avatar: 1,
         coverImage: 1,
         email: 1,
+        socialLinks:1,
+        education:1,
+        about:1,
+        skills:1
       },
     },
   ]);

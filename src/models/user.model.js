@@ -36,6 +36,33 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Password is required"],
     },
+    skills:{
+      type:[String],
+      default: []
+
+    },
+    about:{
+      type: String,
+      default: ""
+    },
+    education: [
+    {
+      degree: { type: String, required: true },  // Example: "Bachelor of Science"
+      institution: { type: String, required: true },  // Example: "University of XYZ"
+      fieldOfStudy: { type: String, required: true },  // Example: "Computer Science"
+      startDate: { type: Date },  // When the user started this education
+      endDate: { type: Date },  // When the user finished this education (optional)
+      grade: { type: String },  // Optional, for GPA or grade (e.g. "3.8/4.0", "First Class")
+      description: { type: String }  // Optional, for additional details (e.g., achievements)
+    }
+  ],
+  socialLinks: {
+      twitter: { type: String }, // Optional Twitter link
+      linkedin: { type: String }, // Optional LinkedIn link
+      github: { type: String }, // Optional GitHub link
+      instagram: { type: String }, // Optional Instagram link
+      facebook: { type: String }, // Optional Facebook link
+    },
     refreshToken: {
       type: String,
     },

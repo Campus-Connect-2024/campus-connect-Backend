@@ -1,0 +1,12 @@
+config:
+  target: "http://localhost:8000/api/v1"  # Update the target URL to your API's address
+  phases:
+    - duration: 10       # Test duration (in seconds)
+      arrivalRate: 1000   # Number of virtual users to spawn per second
+scenarios:
+  - name: "Fetch posts with query"
+    flow:
+      - get:
+          url: "/posts"  # Update the query parameters as per your requirement
+          headers:        # Add the JWT token in the Authorization header
+            Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzAzODBhMmM5NzI4ZTg2OGU0ZmM4YjIiLCJlbWFpbCI6Imphc3ZhbnQxQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoiamFzc2kxQDU2IiwiZnVsbE5hbWUiOiJHT1ZJTkQiLCJpYXQiOjE3MjgyOTYwMTYsImV4cCI6MTcyODM4MjQxNn0.MpGQdZ_bbjjv_ishLEOGuG9U0fui49tEtWYjcUqCTmU"
