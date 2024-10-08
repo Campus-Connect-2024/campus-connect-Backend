@@ -4,18 +4,16 @@ import { app } from "./app.js";
 import { Server } from "socket.io";
 import cluster from "cluster";
 import os from "os";
-
+import logger from "./utils/logger.js";
 dotenv.config({
   path: "./.env",
 });
 
 // Number of CPU cores
 const numCPUs = Math.min(os.cpus().length,8);
-console.log(numCPUs);
-
 if (cluster.isMaster) {
   // Master process
-  console.log(`Master ${process.pid} is running`);
+  logger.info(`Master ${process.pid} is running`);
 
   // Fork workers for each CPU core
   for (let i = 0; i < numCPUs; i++) {
@@ -24,7 +22,7 @@ if (cluster.isMaster) {
 
   // Restart worker on exit
   cluster.on("exit", (worker, code, signal) => {
-    console.log(`Worker ${worker.process.pid} died. Restarting...`);
+    logger.info(`Worker ${worker.process.pid} died. Restarting...`);
     cluster.fork();
   });
 
@@ -34,7 +32,7 @@ if (cluster.isMaster) {
     .then(() => {
       // Start the server
       const server = app.listen(process.env.PORT || 8000, () => {
-        console.log(`⚙️   Worker ${process.pid} running server on port ${process.env.PORT}`);
+        logger.info(`⚙️   Worker ${process.pid} running server on port ${process.env.PORT}`);
       });
 
       // Setup Socket.IO
@@ -43,7 +41,7 @@ if (cluster.isMaster) {
       });
 
       io.on("connection", (socket) => {
-        console.log(`Worker ${process.pid}: Connected to socket.io`);
+        logger.info(`Worker ${process.pid}: Connected to socket.io`);
 
         socket.on("setup", (userData) => {
           socket.join(userData._id);
@@ -52,7 +50,7 @@ if (cluster.isMaster) {
 
         socket.on("join chat", (room) => {
           socket.join(room);
-          console.log(`Worker ${process.pid}: User joined room: ${room}`);
+          logger.info(`Worker ${process.pid}: User joined room: ${room}`);
         });
 
         socket.on("typing", (room) => socket.in(room).emit("typing"));
@@ -61,7 +59,7 @@ if (cluster.isMaster) {
         socket.on("new message", (newMessageRecieved) => {
           const chat = newMessageRecieved.chat;
 
-          if (!chat?.users) return console.log("chat.users not defined");
+          if (!chat?.users) return logger.info("chat.users not defined");
 
           chat.users.forEach((user) => {
             if (user._id == newMessageRecieved.sender._id) return;
@@ -71,12 +69,12 @@ if (cluster.isMaster) {
         });
 
         socket.off("setup", () => {
-          console.log("USER DISCONNECTED");
+          logger.info("USER DISCONNECTED");
           socket.leave(userData._id);
         });
       });
     })
     .catch((err) => {
-      console.log("MONGO db connection failed !!!", err);
+      logger.error("MONGO db connection failed !!!", err);
     });
 }
