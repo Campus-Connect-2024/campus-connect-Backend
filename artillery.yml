@@ -1,8 +1,8 @@
 config:
   target: "http://localhost:8000/api/v1"  # Update the target URL to your API's address
   phases:
-    - duration: 10       # Test duration (in seconds)
-      arrivalRate: 1000   # Number of virtual users to spawn per second
+    - duration: 100       # Test duration (in seconds)
+      arrivalRate: 20000   # Number of virtual users to spawn per second
 scenarios:
   - name: "Fetch posts with query"
     flow:

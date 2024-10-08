@@ -10,7 +10,7 @@ dotenv.config({
 });
 
 // Number of CPU cores
-const numCPUs = Math.min(os.cpus().length,1);
+const numCPUs = Math.min(os.cpus().length,8);
 console.log(numCPUs);
 
 if (cluster.isMaster) {
