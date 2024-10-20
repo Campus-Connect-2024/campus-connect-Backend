@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary, destroyCloudMedia } from "../utils/cloudinary.js";
 import { redisClient} from "../redis/redisClient.js";
+import {deleteCacheKey} from "../utils/DeleteRedisCache.js"
 
 const getAllPosts = asyncHandler(async (req, res) => {
   const {
@@ -15,7 +16,7 @@ const getAllPosts = asyncHandler(async (req, res) => {
     sortType = -1,
     userId = "",
   } = req.query;
-  const cacheKey = `posts:${page}:${limit}:${query}:${sortBy}:${sortType}`;
+  const cacheKey = "posts";
   var postAggregate;
   try {
     let cachedData;
@@ -27,6 +28,7 @@ const getAllPosts = asyncHandler(async (req, res) => {
     }
     if (cachedData) {
       // If data is found in cache, return it
+      console.log("returned from here ")
       return res.status(200).json(new ApiResponse(200, JSON.parse(cachedData), "posts fetched from cache"));
     }
     postAggregate = Posts.aggregate([
@@ -131,7 +133,8 @@ const getAllPosts = asyncHandler(async (req, res) => {
 
 const publishAPost = asyncHandler(async (req, res) => {
   const { title = "", description = "" } = req.body;
-
+  console.log("hello");
+  
   const mediaLocalPath = req.files?.MediaFile?.[0]?.path || "";
   if (!mediaLocalPath && !description) {
     throw new ApiError(400, "Atleast One feild is required ! ");
@@ -145,7 +148,7 @@ const publishAPost = asyncHandler(async (req, res) => {
   if (mediaLocalPath && !media) {
     throw new ApiError(400, "Error while uploading  Media  ");
   }
-
+  
   const mediaPublished = await Posts.create({
     title,
     description,
@@ -157,7 +160,20 @@ const publishAPost = asyncHandler(async (req, res) => {
     duration: media?.duration || 0,
     owner: req.user._id,
   });
-  console.log("Posted ! ");
+  console.log("posted");
+  const cacheKey = `posts`;
+    // console.log("About to delete cache key:", cacheKey);
+    
+    try {
+        const reply = await deleteCacheKey(cacheKey);
+        if (reply) {
+            console.log("Cache deletion successful:", reply);
+        } else {
+            console.log("Cache key did not exist, nothing to delete.");
+        }
+    } catch (error) {
+        logger.error("Error while deleting cache key:", error);
+    }
   return res
     .status(201)
     .json(
