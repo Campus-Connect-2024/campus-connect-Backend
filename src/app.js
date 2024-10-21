@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import logger from "./utils/logger.js";
 import morgan from "morgan";
+import mongoSanitize from "express-mongo-sanitize";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
+app.use(mongoSanitize());
 import userRouter from "./routes/user.routes.js";
 import postRouter from "./routes/post.routes.js";
 import followerRouter from "./routes/followers.routes.js";
