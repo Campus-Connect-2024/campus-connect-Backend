@@ -41,6 +41,11 @@ const userSchema = new Schema(
       default: []
 
     },
+    role: {
+      type: String,
+      enum: ["user", "moderator", "admin"], // Define roles here
+      default: "user",
+    },
     about:{
       type: String,
       default: ""

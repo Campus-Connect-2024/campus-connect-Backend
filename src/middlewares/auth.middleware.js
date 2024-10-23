@@ -29,3 +29,15 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
     throw new ApiError(401, error?.message || "Invalid access token");
   }
 });
+
+export const verifyRole=(roles) => {
+  return (req, res, next) => {
+    const userRole = req.user.role; // Assuming `req.user` is set after authentication
+
+    if (!roles.includes(userRole)) {
+      throw new ApiError(403,`Access denied. Required roles: ${roles.join(", ")}, but user role is: ${userRole}`)
+    }
+
+    next();
+  };
+};
